@@ -107,8 +107,9 @@ uint32_t AS5247Spi::readData(uint32_t command, uint32_t nopCommand) {
 	uint8_t c = command >> 8;
 	uint8_t d = command;
 
-	Serial.print("a: "); 
-	Serial.println(a, HEX);
+	// Serial.print("a: "); 
+	// Serial.println(a, HEX);
+
 	Serial.print("b: "); 
 	Serial.println(b, HEX);
 	Serial.print("c: "); 
@@ -122,7 +123,7 @@ uint32_t AS5247Spi::readData(uint32_t command, uint32_t nopCommand) {
 	// Serial.println(d, BIN); 
 
 	// send four times one bit at a time
-	SPI.transfer(a);
+	// SPI.transfer(a);
 	SPI.transfer(b);
 	SPI.transfer(c);
 	SPI.transfer(d);
@@ -138,10 +139,10 @@ uint32_t AS5247Spi::readData(uint32_t command, uint32_t nopCommand) {
 	// Send Nop Command while receiving data
 	digitalWrite(chipSelectPin, LOW);
 
-	uint32_t receivedData1 = SPI.transfer(0x00);
-	uint32_t receivedData2 = SPI.transfer(0x00);
-	uint32_t receivedData3 = SPI.transfer(0x00);
-	uint32_t receivedData4 = SPI.transfer(0x00);
+	uint8_t receivedData1 = SPI.transfer(0x0000);
+	uint8_t receivedData2 = SPI.transfer(0x0000);
+	uint8_t receivedData3 = SPI.transfer(0x0000);
+	// uint32_t receivedData4 = SPI.transfer(0x00);
 
 	// uint8_t receivedData1 = SPI.transfer(0x00);
 	// uint8_t receivedData2 = SPI.transfer(0x00);
@@ -159,12 +160,27 @@ uint32_t AS5247Spi::readData(uint32_t command, uint32_t nopCommand) {
 	Serial.print("receivedData3: ");
 	Serial.println(receivedData3, BIN); 
 
-	Serial.print("receivedData4: "); 
-	Serial.println(receivedData4, BIN); 
+
+	byte bytex[2]; 
+	bytex[0] = receivedData1; 
+	bytex[1] = receivedData2; 
+
+	Serial.println("binray number: "); 
+	Serial.println(bytex[0], BIN); 
+	Serial.println(bytex[1], BIN); 
+
+	Serial.println("crc verification: "); 
+	Serial.println(CRC8(bytex, 2), HEX); 
+	Serial.println(receivedData3, HEX); 
+
+
+	// Serial.print("receivedData4: "); 
+	// Serial.println(receivedData4, BIN); 
 
 	// uint32_t receivedData = SPI.transfer16(0x00);
 
-	uint32_t receivedData = (receivedData4 << 24) + (receivedData3 << 16)  + (receivedData2 << 8) + receivedData1; 
+	// uint32_t receivedData = (receivedData4 << 24) + (receivedData3 << 16)  + (receivedData2 << 8) + receivedData1; 
+	uint32_t receivedData = (receivedData1 << 16)  + (receivedData2 << 8) + receivedData3; 
 
 	// Serial.print("3: "); 
 	// Serial.println(receivedData3, BIN); 
@@ -210,13 +226,13 @@ uint32_t AS5247Spi::readData(uint32_t command, uint32_t nopCommand) {
 	bytes[2] = (receivedData >> 16) & 0xFF;
 	bytes[3] = (receivedData >> 24) & 0xFF;
 
-	// for (int i = sizeof(bytes)-1; i >= 0; i--){
-	// 	for(int j=7; j >= 0; j--){
-    //         Serial.print(bitRead(bytes[i], j)); 
-    //     }
-    //     Serial.println();
-    // } 
-    // Serial.println(); 
+	for (int i = sizeof(bytes)-1; i >= 0; i--){
+		for(int j=7; j >= 0; j--){
+            Serial.print(bitRead(bytes[i], j)); 
+        }
+        Serial.println();
+    } 
+    Serial.println(); 
 
 
 	return receivedData;
@@ -263,6 +279,10 @@ uint16_t AS5247Spi::readData16(uint16_t command, uint16_t nopCommand) {
 
 	uint16_t receivedData = (receivedData1 << 8)  + receivedData2; 
 
+	Serial.print("receivedData1: "); 
+	Serial.println(receivedData1, BIN); 
+	Serial.print("receivedData2: "); 
+	Serial.println(receivedData2, BIN); 
 
 	// uint16_t receivedData = (receivedData2 << 8)  + receivedData1; 
 
@@ -289,4 +309,34 @@ uint16_t AS5247Spi::readData16(uint16_t command, uint16_t nopCommand) {
     Serial.println(); 
 
 	return receivedData;
+}
+
+uint8_t AS5247Spi::CRC8(byte byteArray[], int size){
+
+
+    for(int i = 0; i < size; i++){
+        Serial.println(byteArray[i], HEX); 
+    }
+
+    // Polynomial 
+    const byte polynomial = 0x1D;
+    // initial value 
+    byte crc = 0xC4;  
+    
+    // calculate crc 
+    for(int i = 0; i < size; i++){
+        crc ^= byteArray[i]; 
+        for(int j = 0; j < 8; j++){
+            if((crc & 0x80) != 0){
+                crc = (byte)((crc << 1) ^ polynomial); 
+            } else {
+                crc <<= 1; 
+            }
+        }
+    }
+    // final XOR  
+    crc &= 0xFF;
+    crc ^= 0xFF; 
+    return crc; 
+
 }
