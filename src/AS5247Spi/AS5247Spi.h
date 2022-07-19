@@ -44,14 +44,12 @@
  */
 class AS5247Spi {
     public:
-
+    
         AS5247Spi(uint8_t chipSelectPin);
-        // void writeData(uint32_t command, uint32_t value);
-        // uint32_t readData(uint32_t command, uint32_t nopCommand);
+        void writeData(uint32_t command, uint32_t value);
         uint32_t readData(uint32_t command, uint32_t nopCommand);
         uint16_t readData16(uint16_t command, uint16_t nopCommand);
         
-
     private:
         uint8_t chipSelectPin;
         uint8_t CRC8(byte data[], int size);

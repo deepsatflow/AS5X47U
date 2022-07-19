@@ -150,10 +150,10 @@ typedef union {
 
 // VELOCITY Register Defination 
 typedef union {
-    uint16_t raw;
+    int raw;
     struct __attribute__ ((packed)) {
-        uint16_t velocity:14;
-        uint16_t unused:2;
+        int velocity:14;
+        int unused:2;
     } values;
 } Velocity;
 
@@ -252,6 +252,7 @@ typedef union {
 } Settings2;
 
 
+
 // SETTINGS3 Register Definition
 typedef union {
     uint8_t raw;
@@ -296,18 +297,15 @@ typedef union {
 } ReadDataFrame16;
 
 
-
-
 // attribute is set to packed so that there is no padding 
 typedef struct __attribute__((packed)) { 
     uint32_t crc:8; 
-    uint32_t commandFrame:14;
+    uint32_t address:14;
     uint32_t rw:1;
     uint32_t dnc:1;
-    uint32_t pad:8; 
 } commandFrame_t ; 
 
-// ============== CONVERT REQUEST DATA TO BYTE ARRAY =========================== 
+// ============== CONVERT COMMAND FRAME DATA TO BYTE ARRAY =========================== 
 typedef union {
     commandFrame_t commandFrame;
     uint32_t value; 
@@ -315,29 +313,10 @@ typedef union {
 } CommandFramePacket_t;
 
 
-typedef union ArrayToInteger {
-    byte array[4];
-    uint32_t integer;
-};
-
-
-// // Command Frame  Definition
-// typedef union {
-//     uint32_t raw;
-//     struct __attribute__ ((packed)) {
-//         uint32_t crc:8; 
-//         uint32_t commandFrame:14;
-//         uint32_t rw:1;
-//         uint32_t dnc:1;
-//         uint32_t pad:8; 
-//     } values;
-// } CommandFrame;
-
 // ReadData Frame  Definition
 typedef union {
     uint32_t raw;
     struct __attribute__ ((packed)) {
-        uint32_t pad:8;
         uint32_t crc:8; 
         uint32_t data:14;
         uint32_t err:1; 
@@ -345,16 +324,21 @@ typedef union {
     } values;
 } ReadDataFrame;
 
-// // WriteData Frame  Definition
-// typedef union {
-//     uint32_t raw;
-//     struct __attribute__ ((packed)) {
-//         uint32_t pad:8;
-//         uint32_t crc:8; 
-//         uint32_t data:14;
-//         uint32_t er:2; 
-//     } values;
-// } WriteDataFrame;
+// attribute is set to packed so that there is no padding 
+typedef struct __attribute__((packed)) { 
+    uint32_t crc:8; 
+    uint32_t data:14;
+    uint32_t err:1; 
+    uint32_t warning:1;  
+} writeData_t ; 
+
+// ============== CONVERT WRITE DATA TO BYTE ARRAY =========================== 
+typedef union {
+    writeData_t writeData;
+    uint32_t value; 
+    byte WriteDataPacket[sizeof(writeData)];
+} WriteDataPacket_t;
+
 
 class AS5247 {
     public:
@@ -362,7 +346,7 @@ class AS5247 {
 
         ReadDataFrame16 readRegister16(uint16_t registerAddress);
         ReadDataFrame readRegister(uint16_t registerAddress);
-        // void writeRegister(uint16_t registerAddress, uint16_t registerValue);
+        void writeRegister(uint16_t registerAddress, uint16_t registerValue);
         void printDebugString();
 
     private:

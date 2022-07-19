@@ -34,10 +34,10 @@ void setup() {
     Serial.begin(115200);
     delay(1000);
     Serial.println("Setup complete!"); 
-    delay(2000); 
+    delay(1000); 
 
     as5247u.printDebugString(); 
-    delay(10000); 
+    delay(20000); 
 }
 
 // ================ LOOP FUNCTION ====================

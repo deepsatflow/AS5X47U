@@ -32,7 +32,7 @@
 */
 
 #include "AS5247.h"
-// #define bitframe16
+#define bitframe16
 
 AS5247::AS5247(uint8_t chipSelectPin) : spi(chipSelectPin) {
 }
@@ -55,48 +55,24 @@ ReadDataFrame AS5247::readRegister(uint16_t registerAddress) {
 	
 	CommandFramePacket_t commandFramePacket;  // create an instance 
 	commandFramePacket.commandFrame.rw = READ;
-	commandFramePacket.commandFrame.commandFrame = registerAddress;
-	commandFramePacket.commandFrame.pad = 0xFF; 
+	commandFramePacket.commandFrame.address = registerAddress;
+
 	
 	// Serial.print("value from union before crc: "); 
 	// Serial.println(commandFramePacket.value, HEX); 
 
 	byte bytesCommandRegister[2]; 
     for (int i = 2; i >= 1; i--){
-		Serial.print("byte sample: "); 
-		Serial.println(commandFramePacket.CommandFramePacket[i], HEX); 
+		// Serial.print("byte sample: "); 
+		// Serial.println(commandFramePacket.CommandFramePacket[i], HEX); 
         bytesCommandRegister[2-i] = commandFramePacket.CommandFramePacket[i]; 
     }
 
 	commandFramePacket.commandFrame.crc = CRC8(bytesCommandRegister, 2);	
 
-	Serial.println("value of command frame: "); 
-	Serial.println(commandFramePacket.commandFrame.commandFrame, HEX); 
-	Serial.println(commandFramePacket.commandFrame.crc, HEX); 
-	Serial.println(commandFramePacket.commandFrame.rw, HEX); 
-	Serial.println(commandFramePacket.commandFrame.dnc, HEX); 
-	Serial.println(commandFramePacket.commandFrame.pad, HEX); 
-	Serial.println(""); 
-
-	
-	// ArrayToInteger converter = {commandFramePacket.CommandFramePacket[0],
-	// 							commandFramePacket.CommandFramePacket[1], 
-	// 							commandFramePacket.CommandFramePacket[2], 
-	// 							commandFramePacket.CommandFramePacket[3]
-	// 							}; //Create a converter
-
-	// Serial.print("value of packet: "); 
-  	// Serial.println(converter.integer, HEX); //Read the 32bit integer value.
-	Serial.print("value from union after crc: "); 
-	Serial.println(commandFramePacket.value, HEX); 
-
-	// uint32_t value = (int) commandFramePacket.CommandFramePacket; 
-	// Serial.print("value of packet: "); 
-	// Serial.println(value, HEX); 
-
 	CommandFramePacket_t nopCommandFramePacket; 
 	nopCommandFramePacket.commandFrame.rw = READ;
-	nopCommandFramePacket.commandFrame.commandFrame = NOP_REG;
+	nopCommandFramePacket.commandFrame.address = NOP_REG;
 
 	byte bytesNopCommandRegister[2]; 
     for (int i = 1; i < 3; i++){
@@ -118,27 +94,35 @@ ReadDataFrame AS5247::readRegister(uint16_t registerAddress) {
 }
 
 
-// void AS5247::writeRegister(uint16_t registerAddress, uint16_t registerValue) {
+void AS5247::writeRegister(uint16_t registerAddress, uint16_t registerValue) {
+	CommandFramePacket_t commandFramePacket;
+	commandFramePacket.commandFrame.rw = WRITE;
+	commandFramePacket.commandFrame.address = registerAddress;
 
-// 	CommandFrame command;
-// 	command.values.rw = WRITE;
-// 	command.values.commandFrame = registerAddress;
-// 	// command.values.parc = isEven(command.raw);
+	byte bytesCommandRegister[2]; 
 
-// 	WriteDataFrame contentFrame;
-// 	contentFrame.values.data = registerValue;
-// 	// contentFrame.values.low = 0;
-// 	// contentFrame.values.pard = isEven(contentFrame.raw);
-// 	spi.writeData(command.raw, contentFrame.raw);
+    for (int i = 2; i >= 1; i--){
+		// Serial.print("byte sample: "); 
+		// Serial.println(commandFramePacket.CommandFramePacket[i], HEX); 
+        bytesCommandRegister[2-i] = commandFramePacket.CommandFramePacket[i]; 
+    }
 
-// }
+	commandFramePacket.commandFrame.crc = CRC8(bytesCommandRegister, 2);	
 
-// void AS5247::writeSettings2(Settings2 values) {
-// 	writeRegister(SETTINGS2_REG, values.raw);
-// }
-// void AS5247::writeSettings3(Settings3 values){
-// 	writeRegister(SETTINGS3_REG, values.raw);
-// }
+	WriteDataPacket_t writeDataPacket;
+	writeDataPacket.writeData.data = registerValue;
+
+	byte bytesWriteRegister[2]; 
+    for (int i = 3; i >= 2; i--){
+		// Serial.print("byte sample: "); 
+		// Serial.println(writeDataPacket.WriteDataPacket[i], HEX); 
+        bytesWriteRegister[3-i] = writeDataPacket.WriteDataPacket[i]; 
+    }
+
+	writeDataPacket.writeData.crc = CRC8(bytesWriteRegister, 2);
+	spi.writeData(commandFramePacket.value, writeDataPacket.value);
+
+}
 
 
 void AS5247::printDebugString() {
@@ -160,8 +144,11 @@ void AS5247::printDebugString() {
 	Serial.print("|   Reading Error: ");
 	Serial.println(readDataFrame.values.err);
 
-	// Serial.print("|   CRC: ");
-	// Serial.println(readDataFrame.values.crc);
+	#ifndef bitframe16
+	Serial.print("|   CRC: ");
+	Serial.println(readDataFrame.values.crc, HEX);
+	#endif
+
 	Serial.print("|   AGC_WARNING: ");
 	Serial.println(errfl.values.agc_warning);
 	Serial.print("|   MAGHALF: ");
@@ -199,6 +186,11 @@ void AS5247::printDebugString() {
 	Serial.print("|   Reading Error: ");
 	Serial.println(readDataFrame.values.err);
 
+	#ifndef bitframe16
+	Serial.print("|   CRC: ");
+	Serial.println(readDataFrame.values.crc, HEX);
+	#endif
+
 	Serial.print("|   PROGEN: ");
 	Serial.println(prog.values.progen);
 	Serial.print("|   OTPREF: ");
@@ -222,6 +214,11 @@ void AS5247::printDebugString() {
 	Serial.println(readDataFrame.values.warning);
 	Serial.print("|   Reading Error: ");
 	Serial.println(readDataFrame.values.err);
+
+	#ifndef bitframe16
+	Serial.print("|   CRC: ");
+	Serial.println(readDataFrame.values.crc, HEX);
+	#endif
 
 	Serial.print("|   VDDMODE: ");
 	Serial.println(dia.values.vdd_mode);
@@ -262,6 +259,11 @@ void AS5247::printDebugString() {
 	Serial.print("|   Reading Error: ");
 	Serial.println(readDataFrame.values.err);
 
+	#ifndef bitframe16
+	Serial.print("|   CRC: ");
+	Serial.println(readDataFrame.values.crc, HEX);
+	#endif
+
 	Serial.print("|   AGC: ");
 	Serial.println(agc.values.agc);
 	Serial.println("|");
@@ -278,6 +280,11 @@ void AS5247::printDebugString() {
 	Serial.println(readDataFrame.values.warning);
 	Serial.print("|   Reading Error: ");
 	Serial.println(readDataFrame.values.err);
+
+	#ifndef bitframe16
+	Serial.print("|   CRC: ");
+	Serial.println(readDataFrame.values.crc, HEX);
+	#endif
 
 	Serial.print("|   SIN DATA: ");
 	Serial.println(sin_data.values.sin_data);
@@ -297,6 +304,11 @@ void AS5247::printDebugString() {
 	Serial.print("|   Reading Error: ");
 	Serial.println(readDataFrame.values.err);
 
+	#ifndef bitframe16
+	Serial.print("|   CRC: ");
+	Serial.println(readDataFrame.values.crc, HEX);
+	#endif
+
 	Serial.print("|   COS DATA: ");
 	Serial.println(cos_data.values.cos_data);
 	Serial.println("|");
@@ -315,6 +327,11 @@ void AS5247::printDebugString() {
 	Serial.print("|   Reading Error: ");
 	Serial.println(readDataFrame.values.err);
 
+	#ifndef bitframe16
+	Serial.print("|   CRC: ");
+	Serial.println(readDataFrame.values.crc, HEX);
+	#endif
+
 	Serial.print("|   VELOCITY: ");
 	Serial.println(velocity.values.velocity);
 	Serial.println("|");
@@ -332,6 +349,12 @@ void AS5247::printDebugString() {
 	Serial.println(readDataFrame.values.warning);
 	Serial.print("|   Reading Error: ");
 	Serial.println(readDataFrame.values.err);
+
+	#ifndef bitframe16
+	Serial.print("|   CRC: ");
+	Serial.println(readDataFrame.values.crc, HEX);
+	#endif
+
 	Serial.print("|   CMAG: ");
 	Serial.println(mag.values.cmag);
 	Serial.println("|");
@@ -350,6 +373,11 @@ void AS5247::printDebugString() {
 	Serial.print("|   Reading Error: ");
 	Serial.println(readDataFrame.values.err);
 
+	#ifndef bitframe16
+	Serial.print("|   CRC: ");
+	Serial.println(readDataFrame.values.crc, HEX);
+	#endif
+
 	Serial.print("|   ANGLEUNC: ");
 	Serial.println(angleunc.values.angleunc);
 	Serial.println("|");
@@ -366,6 +394,11 @@ void AS5247::printDebugString() {
 	Serial.println(readDataFrame.values.warning);
 	Serial.print("|   Reading Error: ");
 	Serial.println(readDataFrame.values.err);
+
+	#ifndef bitframe16
+	Serial.print("|   CRC: ");
+	Serial.println(readDataFrame.values.crc, HEX);
+	#endif
 
 	Serial.print("|   ANGLECOM: ");
 	Serial.println(anglecom.values.anglecom);
@@ -384,6 +417,11 @@ void AS5247::printDebugString() {
 	Serial.print("|   Reading Error: ");
 	Serial.println(readDataFrame.values.err);
 
+	#ifndef bitframe16
+	Serial.print("|   CRC: ");
+	Serial.println(readDataFrame.values.crc, HEX);
+	#endif
+
 	Serial.print("|   CHECKSUM: ");
 	Serial.println(ecc_checksum.values.eec_s);
 	Serial.println("|");
@@ -401,6 +439,11 @@ void AS5247::printDebugString() {
 	Serial.println(readDataFrame.values.warning);
 	Serial.print("|   Reading Error: ");
 	Serial.println(readDataFrame.values.err);
+
+	#ifndef bitframe16
+	Serial.print("|   CRC: ");
+	Serial.println(readDataFrame.values.crc, HEX);
+	#endif
 
 	Serial.print("|   UVW_OFF: ");
 	Serial.println(disable.values.uvw_off);
@@ -425,6 +468,11 @@ void AS5247::printDebugString() {
 	Serial.print("|   Reading Error: ");
 	Serial.println(readDataFrame.values.err);
 
+	#ifndef bitframe16
+	Serial.print("|   CRC: ");
+	Serial.println(readDataFrame.values.crc, HEX);
+	#endif
+
 	Serial.print("|   ZPOSM: ");
 	Serial.println(zposm.values.zposm);
 	Serial.println("|");
@@ -441,6 +489,11 @@ void AS5247::printDebugString() {
 	Serial.println(readDataFrame.values.warning);
 	Serial.print("|   Reading Error: ");
 	Serial.println(readDataFrame.values.err);
+
+	#ifndef bitframe16
+	Serial.print("|   CRC: ");
+	Serial.println(readDataFrame.values.crc, HEX);
+	#endif
 
 	Serial.print("|   ZPOSL: ");
 	Serial.println(zposl.values.zposl);
@@ -463,6 +516,11 @@ void AS5247::printDebugString() {
 	Serial.print("|   Reading Error: ");
 	Serial.println(readDataFrame.values.err);
 
+	#ifndef bitframe16
+	Serial.print("|   CRC: ");
+	Serial.println(readDataFrame.values.crc, HEX);
+	#endif
+
 	Serial.print("|   K_MAX: ");
 	Serial.println(settings1.values.k_max);
 	Serial.print("|   K_MIN: ");
@@ -483,6 +541,11 @@ void AS5247::printDebugString() {
 	Serial.println(readDataFrame.values.warning);
 	Serial.print("|   Reading Error: ");
 	Serial.println(readDataFrame.values.err);
+
+	#ifndef bitframe16
+	Serial.print("|   CRC: ");
+	Serial.println(readDataFrame.values.crc, HEX);
+	#endif
 
 	Serial.print("|   IWIDTH: ");
 	Serial.println(settings2.values.iwidth);
@@ -515,6 +578,11 @@ void AS5247::printDebugString() {
 	Serial.print("|   Reading Error: ");
 	Serial.println(readDataFrame.values.err);
 
+	#ifndef bitframe16
+	Serial.print("|   CRC: ");
+	Serial.println(readDataFrame.values.crc, HEX);
+	#endif
+
 	Serial.print("|   UVWPP: ");
 	Serial.println(settings3.values.uvwpp);
 	Serial.print("|   HYS: ");
@@ -535,6 +603,11 @@ void AS5247::printDebugString() {
 	Serial.println(readDataFrame.values.warning);
 	Serial.print("|   Reading Error: ");
 	Serial.println(readDataFrame.values.err);
+
+	#ifndef bitframe16
+	Serial.print("|   CRC: ");
+	Serial.println(readDataFrame.values.crc, HEX);
+	#endif
 
 	Serial.print("|   ECC_CHSUM: ");
 	Serial.println(ecc.values.ecc_chsum);

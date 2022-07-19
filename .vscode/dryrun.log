@@ -1,0 +1,6 @@
+make --dry-run --keep-going --print-directory
+make: Entering directory `/Users/satishgaurav/Documents/Arduino/libraries/AS5247'
+make: Leaving directory `/Users/satishgaurav/Documents/Arduino/libraries/AS5247'
+ 
+make: *** No targets specified and no makefile found.  Stop.
+

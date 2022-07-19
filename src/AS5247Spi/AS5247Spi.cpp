@@ -39,54 +39,145 @@ AS5247Spi::AS5247Spi(uint8_t _chipSelectPin) {
 }
 
 
-// void AS5247Spi::writeData(uint32_t command, uint32_t value) {
-// 	// @todo Expose the SPI Maximum Frequency in library interface.
-// 	SPI.beginTransaction(SPISettings(100000, MSBFIRST, SPI_MODE1));
-// 	// Send command
-// 	digitalWrite(chipSelectPin, LOW);
-// 	SPI.transfer(command);
-// 	digitalWrite(chipSelectPin, HIGH);
-// 	delayMicroseconds(1);
-// 	// Read data
-// 	digitalWrite(chipSelectPin, LOW);
-// 	SPI.transfer(value);
-// 	digitalWrite(chipSelectPin, HIGH);
-// 	SPI.endTransaction();
-// 	delayMicroseconds(1);
+void AS5247Spi::writeData(uint32_t command, uint32_t value) {
+	// @todo Expose the SPI Maximum Frequency in library interface.
+	SPI.beginTransaction(SPISettings(1000000, MSBFIRST, SPI_MODE1));
+	
+	
+	// Send command
+	digitalWrite(chipSelectPin, LOW);
 
-// }
+	Serial.println("");
+	Serial.print("command: "); 
+	Serial.println(command, HEX); 
+	Serial.print("value: "); 
+	Serial.println(value, HEX); 
+	Serial.println("");
 
-// uint32_t AS5247Spi::readData(uint32_t command, uint32_t nopCommand) {
-// 	SPI.beginTransaction(SPISettings(100000, MSBFIRST, SPI_MODE1));
+	uint8_t byteSend1 = command >> 16;
+	uint8_t byteSend2 = command >> 8;
+	uint8_t byteSend3 = command;
 
-// 	// Send Read Command
-// 	digitalWrite(chipSelectPin, LOW);
-// 	SPI.transfer(command);
+	Serial.print("byteSend1: "); 
+	Serial.println(byteSend1, HEX);
+	Serial.print("byteSend2: "); 
+	Serial.println(byteSend2, HEX);
+	Serial.print("byteSend3: "); 
+	Serial.println(byteSend3, HEX);
 
-// 	Serial.print("command inside: "); 
-// 	Serial.println(command, HEX);
 
-// 	digitalWrite(chipSelectPin, HIGH);
-// 	delayMicroseconds(1);
-// 	// Send Nop Command while receiving data
-// 	digitalWrite(chipSelectPin, LOW);
-// 	uint32_t receivedData = SPI.transfer(nopCommand);
-// 	digitalWrite(chipSelectPin, HIGH);
-// 	SPI.endTransaction();
-// 	delayMicroseconds(1);
-// 	return receivedData;
-// }
+	Serial.println(); 
 
+	// send three times one byte at a time
+	SPI.transfer(byteSend1);
+	SPI.transfer(byteSend2);
+	// SPI.transfer(byteSend3);
+
+	Serial.println("command send: "); 
+	byte byte_command[3]; 
+	byte_command[0] = byteSend1;
+	byte_command[1] = byteSend2; 
+	byte_command[2] = byteSend3;
+
+	for (int i = 0; i < sizeof(byte_command); i++){
+		for(int j=7; j >= 0; j--){
+            Serial.print(bitRead(byte_command[i], j)); 
+        }
+        Serial.print(" ");
+    } 
+	Serial.println(" "); 
+
+	// SPI.transfer16(command);
+
+	digitalWrite(chipSelectPin, HIGH);
+	delayMicroseconds(1);
+	
+	// Read data
+	digitalWrite(chipSelectPin, LOW);
+
+	uint8_t byteSendValue1 = value >> 24; 
+	uint8_t byteSendValue2 = value >> 16;
+	uint8_t byteSendValue3 = value >> 8;
+
+	Serial.print("byteSendValue1: "); 
+	Serial.println(byteSendValue1, HEX);
+	Serial.print("byteSendValue2: "); 
+	Serial.println(byteSendValue2, HEX);
+	Serial.print("byteSendValue3: "); 
+	Serial.println(byteSendValue3, HEX);
+
+	// send four times one bit at a time
+	SPI.transfer(byteSendValue1);
+	SPI.transfer(byteSendValue2);
+	SPI.transfer(byteSendValue3);
+
+	byte bytes_value[3]; 
+	bytes_value[0] = byteSendValue1;
+	bytes_value[1] = byteSendValue2; 
+	bytes_value[2] = byteSendValue3;
+
+	Serial.println("values send: ");
+	for (int i = 0; i < sizeof(byte_command); i++){
+		for(int j=7; j >= 0; j--){
+            Serial.print(bitRead(byte_command[i], j)); 
+        }
+        Serial.print(" ");
+    } 
+	Serial.println(" "); 
+
+	digitalWrite(chipSelectPin, HIGH);
+	SPI.endTransaction();
+	delayMicroseconds(1);
+
+}
 
 uint32_t AS5247Spi::readData(uint32_t command, uint32_t nopCommand) {
-	SPI.beginTransaction(SPISettings(100000, MSBFIRST, SPI_MODE1));
+	SPI.beginTransaction(SPISettings(1000000, MSBFIRST, SPI_MODE1));
 
 	// Send Read Command
 	digitalWrite(chipSelectPin, LOW);
 
 	// send 16 bits data two times 
-	SPI.transfer16(command >> 16);
-	SPI.transfer16(command); 
+	// SPI.transfer16(command >> 16);
+	// SPI.transfer16(command); 
+
+
+	Serial.println("");
+	Serial.print("command: "); 
+	Serial.println(command, HEX); 
+	Serial.println("");
+
+	uint8_t byteSend1 = command >> 16;
+	uint8_t byteSend2 = command >> 8;
+	uint8_t byteSend3 = command;
+
+	Serial.print("byteSend1: "); 
+	Serial.println(byteSend1, HEX);
+	Serial.print("byteSend2: "); 
+	Serial.println(byteSend2, HEX);
+	Serial.print("byteSend3: "); 
+	Serial.println(byteSend3, HEX);
+	Serial.println(); 
+
+
+	// send three times one byte at a time
+	SPI.transfer(byteSend1);
+	SPI.transfer(byteSend2);
+	SPI.transfer(byteSend3);
+
+	Serial.println("command send: "); 
+	byte byte_command[3]; 
+	byte_command[0] = byteSend1;
+	byte_command[1] = byteSend2; 
+	byte_command[2] = byteSend3;
+
+	for (int i = 0; i < sizeof(byte_command); i++){
+		for(int j=7; j >= 0; j--){
+            Serial.print(bitRead(byte_command[i], j)); 
+        }
+        Serial.print(" ");
+    } 
+	Serial.println(" "); 
 
 	digitalWrite(chipSelectPin, HIGH);
 	delayMicroseconds(1);
@@ -94,40 +185,44 @@ uint32_t AS5247Spi::readData(uint32_t command, uint32_t nopCommand) {
 	// Send Nop Command while receiving data
 	digitalWrite(chipSelectPin, LOW);
 
-	uint32_t receivedData1 = SPI.transfer16(0x0000);
-	uint32_t receivedData2 = SPI.transfer16(0x0000);
 
-	Serial.print("receivedData1: "); 
-	Serial.println(receivedData1, BIN); 
+	uint32_t byteReceived1 = SPI.transfer(0x0000);
+	uint32_t byteReceived2 = SPI.transfer(0x0000);
+	uint32_t byteReceived3 = SPI.transfer(0x0000); 
 
-	Serial.print("receivedData2: "); 
-	Serial.println(receivedData2, BIN); 
+	Serial.print("byteReceived1: "); 
+	Serial.println(byteReceived1, BIN); 
+	Serial.print("byteReceived2: "); 
+	Serial.println(byteReceived2, BIN); 
+	Serial.print("byteReceived3: "); 
+	Serial.println(byteReceived3, BIN); 
 
 	// merge data for two times 
-	uint32_t receivedData = (receivedData1 << 16) + receivedData2; 
+	uint32_t receivedData = (byteReceived1 << 16) + (byteReceived2 << 8) + (byteReceived3 << 0); 
 
 	digitalWrite(chipSelectPin, HIGH);
 	SPI.endTransaction();
 	delayMicroseconds(1);
 
-	byte bytes[4]; 
-	bytes[0] = (receivedData >> 0)  & 0xFF;
-	bytes[1] = (receivedData >> 8)  & 0xFF;
-	bytes[2] = (receivedData >> 16) & 0xFF;
-	bytes[3] = (receivedData >> 24) & 0xFF;
-
-	for (int i = sizeof(bytes)-1; i >= 0; i--){
+	byte bytes_received[3]; 
+	bytes_received[0] = (receivedData >> 16)  & 0xFF;
+	bytes_received[1] = (receivedData >> 8)  & 0xFF;
+	bytes_received[2] = (receivedData >> 0) & 0xFF;
+	
+	Serial.println("values received: "); 
+	for (int i = 0; i < sizeof(bytes_received); i++){
 		for(int j=7; j >= 0; j--){
-            Serial.print(bitRead(bytes[i], j)); 
+            Serial.print(bitRead(bytes_received[i], j)); 
         }
-        Serial.println();
+        Serial.print(" ");
     } 
     Serial.println(); 
+
 	return receivedData;
 }
 
 uint16_t AS5247Spi::readData16(uint16_t command, uint16_t nopCommand) {
-	SPI.beginTransaction(SPISettings(100000, MSBFIRST, SPI_MODE1));
+	SPI.beginTransaction(SPISettings(1000000, MSBFIRST, SPI_MODE1));
 
 	// for testing only 
 	// command = 0x7FF5; 
@@ -144,6 +239,17 @@ uint16_t AS5247Spi::readData16(uint16_t command, uint16_t nopCommand) {
 	Serial.print("b: "); 
 	Serial.println(b, HEX);
 
+	byte byte_command[2]; 
+	byte_command[0] = b;
+	byte_command[1] = a; 
+
+	for (int i = sizeof(byte_command)-1; i >= 0; i--){
+		for(int j=7; j >= 0; j--){
+            Serial.print(bitRead(byte_command[i], j)); 
+        }
+        Serial.print(" ");
+    } 
+	Serial.println(" "); 
 
 	SPI.transfer(a);
 	SPI.transfer(b);
@@ -157,20 +263,20 @@ uint16_t AS5247Spi::readData16(uint16_t command, uint16_t nopCommand) {
 	digitalWrite(chipSelectPin, LOW);
 
 
-	// uint16_t receivedData = SPI.transfer16(0x00);
+	uint16_t receivedData = SPI.transfer16(0x00);
 
-	// uint8_t receivedData1 = SPI.transfer16(0x0000);
-	// uint8_t receivedData2 = SPI.transfer16(0x0000);
+	// uint16_t receivedData1 = SPI.transfer16(0x0000);
+	// uint16_t receivedData2 = SPI.transfer16(0x0000);
 
-	uint8_t receivedData1 = SPI.transfer(0x00);
-	uint8_t receivedData2 = SPI.transfer(0x00);
+	// uint16_t receivedData1 = SPI.transfer(0x00);
+	// uint16_t receivedData2 = SPI.transfer(0x00);
 
-	uint16_t receivedData = (receivedData1 << 8)  + receivedData2; 
+	// uint16_t receivedData = (receivedData1 << 8)  + receivedData2; 
 
-	Serial.print("receivedData1: "); 
-	Serial.println(receivedData1, BIN); 
-	Serial.print("receivedData2: "); 
-	Serial.println(receivedData2, BIN); 
+	// Serial.print("receivedData1: "); 
+	// Serial.println(receivedData1, BIN); 
+	// Serial.print("receivedData2: "); 
+	// Serial.println(receivedData2, BIN); 
 
 	// uint16_t receivedData = (receivedData2 << 8)  + receivedData1; 
 
@@ -182,17 +288,11 @@ uint16_t AS5247Spi::readData16(uint16_t command, uint16_t nopCommand) {
 	bytes[0] = (receivedData >> 0)  & 0xFF;
 	bytes[1] = (receivedData >> 8)  & 0xFF;
 
-	// for (int i = 0; i < sizeof(bytes); i++){
 	for (int i = sizeof(bytes)-1; i >= 0; i--){
-        // Serial.print(commandFramePacket.CommandFramePacket[i], BIN);
-        // for(int j=0; j < 8; j++){
-        //     Serial.print(bitRead(bytes[i], j)); 
-        // }
-
 		for(int j=7; j >= 0; j--){
             Serial.print(bitRead(bytes[i], j)); 
         }
-        // Serial.println();
+        Serial.print(" ");
     } 
     Serial.println(); 
 
