@@ -41,49 +41,13 @@ void setup() {
     Serial.println("Setup complete!"); 
     delay(1000); 
 
-    // Serial.println("Writing register setting");
-    as5247u.writeRegister(SETTINGS3_REG, 0xFC); 
+    Serial.println("Writing register setting");
+    as5247u.writeRegister(SETTINGS3_REG, 0x03); 
+    as5247u.writeRegister(SETTINGS2_REG, 0xFF); 
     delay(500); 
 
-    // readDataFrame16 = as5247u.readRegister16(SETTINGS3_REG); 
-
-    // uint16_t settings3_value_1 = readDataFrame16.values.data; 
-    // uint8_t a = settings3_value_1; 
-	// uint8_t b = settings3_value_1 >> 8;
-
-	// Serial.print("a: "); 
-	// Serial.println(a, HEX);
-	// Serial.print("b: "); 
-	// Serial.println(b, HEX);
-
-    // byte bytes[2]; 
-	// bytes[0] = (settings3_value_1 >> 0)  & 0xFF;
-	// bytes[1] = (settings3_value_1 >> 8)  & 0xFF;
-
-	// for (int i = sizeof(bytes)-1; i >= 0; i--){
-	// 	for(int j=7; j >= 0; j--){
-    //         Serial.print(bitRead(bytes[i], j)); 
-    //     }
-    //     Serial.print(" ");
-    // } 
-
-    // Serial.println("\nend of 16 bit\n"); 
-
-    // readDataFrame = as5247u.readRegister(SETTINGS3_REG); 
-    // uint32_t settings3_value_2 = readDataFrame.values.data; 
-
-
-	// Serial.println("values send: ");
-	// for (int i = sizeof(bytes_value)-1; i >= 0; i--){
-	// 	for(int j=7; j >= 0; j--){
-    //         Serial.print(bitRead(bytes_value[i], j)); 
-    //     }
-    //     Serial.print(" ");
-    // } 
-	// Serial.println(" "); 
-
-
     as5247u.printDebugString(); 
+    as5247u.printDebugString();
     delay(10000); 
 }
 
