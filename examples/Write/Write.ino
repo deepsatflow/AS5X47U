@@ -42,12 +42,13 @@ void setup() {
     delay(1000); 
 
     Serial.println("Writing register setting");
-    as5247u.writeRegister(SETTINGS3_REG, 0x03); 
+    as5247u.writeRegister(SETTINGS3_REG, 0xF6); 
     as5247u.writeRegister(SETTINGS2_REG, 0xFF); 
+    as5247u.writeRegister(SETTINGS1_REG, 0xFF); 
     delay(500); 
 
     as5247u.printDebugString(); 
-    as5247u.printDebugString();
+    // as5247u.printDebugString();
     delay(10000); 
 }
 
