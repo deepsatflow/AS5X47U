@@ -10,7 +10,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 make: *** No rule to make target `all'.  Stop.
 
 
-# Make data base, printed on Tue Jul 19 17:11:10 2022
+# Make data base, printed on Fri Jul 22 05:24:40 2022
 
 # Variables
 
@@ -30,7 +30,6 @@ NVM_INC = /Users/satishgaurav/.nvm/versions/node/v14.19.3/include/node
 CURDIR := /Users/satishgaurav/Documents/Arduino/libraries/AS5247
 # makefile
 SHELL = /bin/sh
- 
 # environment
 VSCODE_NLS_CONFIG = {"locale":"en-gb","availableLanguages":{},"_languagePackSupport":true}
 # environment
@@ -60,7 +59,7 @@ ANDROID_HOME = /Users/satishgaurav/Library/Android/sdk
 # default
 .FEATURES := target-specific order-only second-expansion else-if archives jobserver check-symlink
 # environment
-SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.D0MzR8RmTE/Listeners
+SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.2QcqARSwTq/Listeners
 # environment
 CPLUS_INCLUDE_PATH = :/opt/homebrew/include
 # automatic
@@ -172,7 +171,7 @@ LANG = C
 # environment
 TERM = xterm-256color
 # environment
-VSCODE_PID = 24130
+VSCODE_PID = 24169
 # environment
 _CE_CONDA = 
 # variable set hash-table stats:
@@ -184,7 +183,7 @@ _CE_CONDA =
 
 # Directories
 
-# . (device 16777234, inode 41002793): 11 files, no impossibilities.
+# . (device 16777232, inode 41002793): 11 files, no impossibilities.
 
 # 11 files, no impossibilities in 1 directories.
 
@@ -235,7 +234,6 @@ makefile:
 #  Modification time never checked.
 #  File has not been updated.
 
- 
 # Not a target:
 GNUmakefile:
 #  A default, MAKEFILES, or -include/sinclude makefile.
@@ -259,6 +257,6 @@ GNUmakefile:
 # strcache size: total = 0 / max = 0 / min = 4096 / avg = 0
 # strcache free: total = 0 / max = 0 / min = 4096 / avg = 0
 
-# Finished Make data base on Tue Jul 19 17:11:10 2022
+# Finished Make data base on Fri Jul 22 05:24:40 2022
 
  

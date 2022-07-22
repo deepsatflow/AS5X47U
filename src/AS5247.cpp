@@ -32,7 +32,7 @@
 */
 
 #include "AS5247.h"
-#define bitframe16
+// #define bitframe16
 
 AS5247::AS5247(uint8_t chipSelectPin) : spi(chipSelectPin) {
 }
@@ -68,7 +68,13 @@ ReadDataFrame AS5247::readRegister(uint16_t registerAddress) {
         bytesCommandRegister[2-i] = commandFramePacket.CommandFramePacket[i]; 
     }
 
-	commandFramePacket.commandFrame.crc = CRC8(bytesCommandRegister, 2);	
+	// commandFramePacket.commandFrame.crc = CRC8(bytesCommandRegister, 2);
+
+	// Serial.println("command frame packet"); 
+	// for(int i = 0; i < sizeof(commandFramePacket.CommandFramePacket); i++){
+	// 	Serial.print(commandFramePacket.CommandFramePacket[i], HEX); 
+	// }	
+	// Serial.println(); 
 
 	CommandFramePacket_t nopCommandFramePacket; 
 	nopCommandFramePacket.commandFrame.rw = READ;
@@ -78,7 +84,7 @@ ReadDataFrame AS5247::readRegister(uint16_t registerAddress) {
     for (int i = 1; i < 3; i++){
         bytesNopCommandRegister[i - 1] = nopCommandFramePacket.CommandFramePacket[i]; 
     }
-	nopCommandFramePacket.commandFrame.crc = CRC8(bytesNopCommandRegister, 2); 
+	// nopCommandFramePacket.commandFrame.crc = CRC8(bytesNopCommandRegister, 2); 
 
 	// CommandFrame16 nopCommand;
 	// nopCommand.values.rw = READ;
@@ -102,25 +108,36 @@ void AS5247::writeRegister(uint16_t registerAddress, uint16_t registerValue) {
 	byte bytesCommandRegister[2]; 
 
     for (int i = 2; i >= 1; i--){
-		// Serial.print("byte sample: "); 
-		// Serial.println(commandFramePacket.CommandFramePacket[i], HEX); 
+		Serial.print("byte sample command frame: "); 
+		Serial.println(commandFramePacket.CommandFramePacket[i], HEX); 
         bytesCommandRegister[2-i] = commandFramePacket.CommandFramePacket[i]; 
     }
 
 	commandFramePacket.commandFrame.crc = CRC8(bytesCommandRegister, 2);	
 
-	WriteDataPacket_t writeDataPacket;
-	writeDataPacket.writeData.data = registerValue;
+	// WriteDataPacket_t writeDataPacket;
+	// writeDataPacket.writeData.data = registerValue;
+	
+	// Serial.println("write data packet: "); 
+	// Serial.println(writeDataPacket.value, HEX); 
 
-	byte bytesWriteRegister[2]; 
-    for (int i = 3; i >= 2; i--){
-		// Serial.print("byte sample: "); 
-		// Serial.println(writeDataPacket.WriteDataPacket[i], HEX); 
-        bytesWriteRegister[3-i] = writeDataPacket.WriteDataPacket[i]; 
-    }
 
-	writeDataPacket.writeData.crc = CRC8(bytesWriteRegister, 2);
-	spi.writeData(commandFramePacket.value, writeDataPacket.value);
+	// byte bytesWriteRegister[2]; 
+    // for (int i = 2; i >= 1; i--){
+	// 	Serial.print("byte sample write data frame: "); 
+	// 	Serial.println(writeDataPacket.WriteDataPacket[i], HEX);
+    //     bytesWriteRegister[3-i] = writeDataPacket.WriteDataPacket[i]; 
+    // }
+
+
+	// Serial.println("write frame packet: "); 
+	// for(int i = 0; i < sizeof(writeDataPacket.WriteDataPacket); i++){
+	// 	Serial.print(writeDataPacket.WriteDataPacket[i], HEX); 
+	// }	
+	// Serial.println(); 
+
+	// writeDataPacket.writeData.crc = CRC8(bytesWriteRegister, 2);
+	spi.writeData(commandFramePacket.value, registerValue);
 
 }
 
@@ -619,40 +636,40 @@ void AS5247::printDebugString() {
 }
 
 
-uint8_t AS5247::CRC8(byte data [], int size){
+// uint8_t AS5247::CRC8(byte data [], int size){
 	
 
-	// Polynomial 
-    const byte polynomial = 0x1D;
-    // initial value 
-    byte crc = 0xC4;  
+// 	// Polynomial 
+//     const byte polynomial = 0x1D;
+//     // initial value 
+//     byte crc = 0x4C;  
 
-    // get the size of byte array 
-    // size_t size = sizeof(data)/(sizeof(data[0])); 
-    // Serial.print("size: "); 
-    // Serial.println(size); 
+//     // get the size of byte array 
+//     // size_t size = sizeof(data)/(sizeof(data[0])); 
+//     // Serial.print("size: "); 
+//     // Serial.println(size); 
 
-    // calculate crc 
-    for(int i = 0; i < size; i++){
-        crc ^= data[i]; 
-        for(int j = 0; j < 8; j++){
-            if((crc & 0x80) != 0){
-                crc = (byte)((crc << 1) ^ polynomial); 
-            } else {
-                crc <<= 1; 
-            }
-        }
-    }
+//     // calculate crc 
+//     for(int i = 0; i < size; i++){
+//         crc ^= data[i]; 
+//         for(int j = 0; j < 8; j++){
+//             if((crc & 0x80) != 0){
+//                 crc = (byte)((crc << 1) ^ polynomial); 
+//             } else {
+//                 crc <<= 1; 
+//             }
+//         }
+//     }
 
-    // final XOR  
-    crc &= 0xFF;
-    crc ^= 0xFF; 
+//     // final XOR  
+//     crc &= 0xFF;
+//     crc ^= 0xFF; 
 
-	Serial.print("CRC Value: "); 
-	Serial.println(crc, HEX); 
-    return crc; 
+// 	Serial.print("CRC Value: "); 
+// 	Serial.println(crc, HEX); 
+//     return crc; 
 
-}
+// }
 
 bool AS5247::isEven(uint16_t data) {
 	int count=0;
