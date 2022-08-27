@@ -1,16 +1,15 @@
 
 
-# AS5X47 Library for Arduino
+# AS5X47U Library for Arduino
 ![AS5047P Encoder with Arduino Mega](extras/images/encoderWithArduino.jpg?raw=true "Encoder with Arduino Mega")![AS5047P Encoder Mount](extras/images/encoderMount.jpg?raw=true "AS5047P Encoder")
 
-AS5X47 is a library for connecting AS5047 and AS5147 magnetic encoders to Arduino boards. It allows to easily read the angle measured from the sensor and also advanced features to reconfigure the encoder.
+AS5X47 is a library for connecting AS5147U and AS5247U magnetic encoders to Arduino boards. It allows to easily read the angle measured from the sensor and also advanced features to reconfigure the encoder.
 
 ## Hardware support
 This library has been tested with the following encoders:
 
- - AS5047P
- - AS5047D
- - AS5147P
+ - AS5247U
+ - AS5147U
 
 ## Supported Features
 
@@ -19,7 +18,7 @@ This library has been tested with the following encoders:
  - [x] Read and Write operations for all registers
  - [x] Abstraction of angle measure
  - [x] Debug string to read the state of all registers at once
- - [ ] One Time Programation (OTP) Abstraction
+ - [ ] One Time Programation (OTP) Abstraction (OTP exmaple is in the example sections)
 
 Please let me know if you tested it with other encoders.
 
